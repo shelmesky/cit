@@ -3,7 +3,7 @@ project(cit)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_VERBOSE_MAKEFILE OFF)
-set_source_files_properties(main.c PROPERTIES LANGUAGE CXX )
+set_source_files_properties(main.c PROPERTIES LANGUAGE CXX)
 
 add_compile_options(-Wall)
 #add_compile_options(-fgnu89-inline)
