@@ -130,7 +130,7 @@ Linker::Linker() {
 }
 
 void Linker::addElf(const char *dir) {
-    Elf_file * elf = new
+    Elf_file *elf = new
     Elf_file();
     elf->readElf(dir);//读入目标文件，构造elf文件对象
     elfs.push_back(elf);//添加目标文件对象
@@ -150,7 +150,7 @@ void Linker::collectInfo() {
         {
             //if(ELF32_ST_BIND(symIt->second->st_info)==STB_GLOBAL)//不是只考虑全局符号[但是按照汇编器设计，局部符号避免名字冲突]
             {
-                SymLink * symLink = new
+                SymLink *symLink = new
                 SymLink();
                 symLink->name = symIt->first;//记录名字
                 if (symIt->second->st_shndx == STN_UNDEF)//引用符号

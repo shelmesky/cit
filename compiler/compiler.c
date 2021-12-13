@@ -25,12 +25,17 @@ bool showGen;
 bool showTab;
 string fileName;
 
-Compiler::Compiler(bool l, bool sy, bool se, bool g, bool t) {
-    showLex = l;
-    showSyn = sy;
-    showSem = se;
-    showGen = g;
-    showTab = t;
+Compiler::Compiler(bool
+l,
+bool sy, bool
+se,
+bool g, bool
+t) {
+showLex = l;
+showSyn = sy;
+showSem = se;
+showGen = g;
+showTab = t;
 }
 
 

@@ -33,13 +33,20 @@ void var_record::copy(const var_record *src) {
     this->externed = src->externed;
 }
 
-var_record::var_record(const var_record &v)//拷贝构造函数
+var_record::var_record(const var_record
+
+&v)//拷贝构造函数
 {
-    this->type = v.type;
-    this->name = v.name;
-    this->intVal = v.intVal;
-    this->localAddr = v.localAddr;
-    this->externed = v.externed;
+this->
+type = v.type;
+this->
+name = v.name;
+this->
+intVal = v.intVal;
+this->
+localAddr = v.localAddr;
+this->
+externed = v.externed;
 }
 
 var_record::~var_record() {
@@ -50,24 +57,44 @@ fun_record::fun_record()//默认构造函数
 {
     this->type = null;
     this->name = "";
-    this->args = new vector<symbol>();
+    this->args = new
+    vector<symbol>();
     this->args->clear();
-    this->localvars = new vector<var_record *>();
+    this->localvars = new
+    vector<var_record * >();
     this->defined = 0;
     this->flushed = 0;
     this->hadret = 0;
 }
 
-fun_record::fun_record(const fun_record &f)//拷贝构造函数，仅仅拷贝函数声明信息，其他的信息忽略，代码生成时通过对tfun的管理就能生成局部代码
+fun_record::fun_record(const fun_record
+
+&f)//拷贝构造函数，仅仅拷贝函数声明信息，其他的信息忽略，代码生成时通过对tfun的管理就能生成局部代码
 {
-    this->type = f.type;
-    this->name = f.name;
-    this->args = new vector<symbol>();
-    for (int i = 0; i < f.args->size(); i++) {
-        args->push_back((*f.args)[i]);
-    }
-    this->defined = f.defined;
-    this->localvars = NULL;
+this->
+type = f.type;
+this->
+name = f.name;
+this->
+args = new
+
+vector<symbol>();
+
+for (
+int i = 0;
+i < f.args->
+
+size();
+
+i++) {
+args->
+push_back((*f
+.args)[i]);
+}
+this->
+defined = f.defined;
+this->
+localvars = NULL;
 }
 
 void fun_record::init(symbol dec_type, string dec_name)//初始化函数
@@ -98,13 +125,15 @@ void fun_record::pushlocalvar()//添加一个局部变量
     //局部变量定义的缓冲机制，defined==1之前，是不写入符号表的，因为此时还不能确定是不是函数定义
     if (defined == 0)//还是参数声明
     {
-        this->localvars->push_back(new var_record(tvar));
+        this->localvars->push_back(new
+        var_record(tvar));
 //     cout<<"缓冲"<<this->name<<"函数的参数变量"<<symName[tvar.type]<<" "<<tvar.name<<endl;
     } else {
         if (showTab)
             cout << "\t\t\t函数 " << symName[this->type] << " " << this->name << "()\t局部变量 <" << symName[tvar.type]
                  << ">(" << tvar.name << ")\t进入-->符号表" << endl;
-        var_record *pRec = new var_record(tvar);
+        var_record * pRec = new
+        var_record(tvar);
         //记录当前的局部变量
         this->localvars->push_back(pRec);
         //把局部变量写入名字表
@@ -180,21 +209,37 @@ void fun_record::poplocalvars(int num)//弹出多个局部变量
     }
 }
 
-int fun_record::equal(fun_record &f) {
-    if (synerr != 0)//有语法错误，不处理
-        return -1;
-    int flag = 1;
-    if (args->size() == f.args->size()) {
-        for (int i = 0; i < f.args->size(); i++)//参数不匹配
-        {
-            if ((*f.args)[i] != (*args)[i]) {
-                flag = 0;
-                break;
-            }
-        }
-    } else
-        flag = 0;
-    return (type == f.type && name == f.name && flag == 1);
+int fun_record::equal(fun_record
+
+&f) {
+if (synerr != 0)//有语法错误，不处理
+return -1;
+int flag = 1;
+if (args->
+
+size()
+
+== f.args->
+
+size()
+
+) {
+for (
+int i = 0;
+i < f.args->
+
+size();
+
+i++)//参数不匹配
+{
+if ((*f.args)[i] != (*args)[i]) {
+flag = 0;
+break;
+}
+}
+} else
+flag = 0;
+return (type == f.type && name == f.name && flag == 1);
 }
 
 /**
@@ -203,48 +248,65 @@ int fun_record::equal(fun_record &f) {
  * noVal——是否对常量封装
  * var_num——局部变量个数
  */
-var_record *fun_record::create_tmpvar(symbol type, int hasVal, int &var_num) {
-    if (synerr != 0)//有错误，不处理./*即使有语意错误也要执行 2012-4-30*/
-        return NULL;
-    //创建临时变量记录
-    var_record *p_tmpvar = new var_record();
-    switch (type) {
-        case rsv_int:
-            if (hasVal) {
-                p_tmpvar->intVal = num;
-            }
-            break;
-        case rsv_char:
-            if (hasVal) {
-                p_tmpvar->charVal = letter;
-            }
-            break;
-        case rsv_string:
-            if (hasVal) {
-                p_tmpvar->strValId = table.addstring();
-            } else {
-                p_tmpvar->strValId = -1;//是临时string
-            }
-            break;
-    }
-    p_tmpvar->name = genName("tmp", type, "");
-    p_tmpvar->type = type;
-    //局部变量计数
-    var_num++;
-    //添加临时变量入栈
-    //记录当前的局部变量
-    this->localvars->push_back(p_tmpvar);
-    //把局部变量写入名字表
-    table.addvar(p_tmpvar);//应该可以不写入名字表，但是为了保持变量清除的一致性，作此操作
-    //计算地址
-    int argslen = this->args->size();
-    int localvarlen = this->localvars->size();
-    p_tmpvar->localAddr = -4 * (localvarlen - argslen);//局部变量的地址按照ebp-4*count的方式变化,修改
+var_record *fun_record::create_tmpvar(symbol type, int hasVal, int
+
+&var_num) {
+if (synerr != 0)//有错误，不处理./*即使有语意错误也要执行 2012-4-30*/
+return
+NULL;
+//创建临时变量记录
+var_record *p_tmpvar = new
+
+var_record();
+
+switch (type) {
+case rsv_int:
+if (hasVal) {
+p_tmpvar->
+intVal = num;
+}
+break;
+case rsv_char:
+if (hasVal) {
+p_tmpvar->
+charVal = letter;
+}
+break;
+case rsv_string:
+if (hasVal) {
+p_tmpvar->
+strValId = table.addstring();
+} else {
+p_tmpvar->
+strValId = -1;//是临时string
+}
+break;
+}
+p_tmpvar->
+name = genName("tmp", type, "");
+p_tmpvar->
+type = type;
+//局部变量计数
+var_num++;
+//添加临时变量入栈
+//记录当前的局部变量
+this->localvars->
+push_back(p_tmpvar);
+//把局部变量写入名字表
+table.
+addvar(p_tmpvar);//应该可以不写入名字表，但是为了保持变量清除的一致性，作此操作
+//计算地址
+int argslen = this->args->size();
+int localvarlen = this->localvars->size();
+p_tmpvar->
+localAddr = -4 * (localvarlen - argslen);//局部变量的地址按照ebp-4*count的方式变化,修改
 //   cout<<"临时变量"<<p_tmpvar->name<<"[地址=ebp"<<p_tmpvar->localAddr<<",类型="<<symName[p_tmpvar->type]<<"]入栈"<<endl;
-    //代码中为局部变量开辟临时空间
-    genLocvar(p_tmpvar->strValId);
-    //返回变量记录的指针
-    return p_tmpvar;
+//代码中为局部变量开辟临时空间
+genLocvar(p_tmpvar
+->strValId);
+//返回变量记录的指针
+return
+p_tmpvar;
 }
 
 /**
@@ -268,7 +330,7 @@ fun_record::~fun_record() {
             int len = args->size();
             for (int i = 0; i < len; i++) {
 // 	cout<<"参数"<<(*localvars)[i]->name<<"被紧急删除"<<endl;
-                delete (*localvars)[i];
+                delete(*localvars)[i];
             }
         }
         //其他的就不管理了，在map里边清除
@@ -276,7 +338,8 @@ fun_record::~fun_record() {
         delete localvars;
     }
     this->args->clear();
-    delete this->args;
+    delete
+    this->args;
     this->defined = 0;
 }
 
@@ -290,92 +353,139 @@ Table::Table() {
 /**
  * 为当前的函数调用代码参加一个实际参数的记录，不检验合法性，最后一块检查
  */
-void Table::addrealarg(var_record *arg, int &var_num) {
-    if (synerr != 0)//有语法错误，不处理
-        return;
-    if (arg->type == rsv_string) {
-        //if(ret->strValId!=-1)//不在栈中
-        {//强制产生副本
-            var_record empstr;
-            string empname = "";
-            empstr.init(rsv_string, empname);
-            arg = genExp(&empstr, addi, arg, var_num);
-        }
-    }
-    real_args_list.push_back(arg);
+void Table::addrealarg(var_record *arg, int
+
+&var_num) {
+if (synerr != 0)//有语法错误，不处理
+return;
+if (arg->type == rsv_string) {
+//if(ret->strValId!=-1)//不在栈中
+{//强制产生副本
+var_record empstr;
+string empname = "";
+empstr.
+init(rsv_string, empname
+);
+arg = genExp(&empstr, addi, arg, var_num);
+}
+}
+real_args_list.
+push_back(arg);
 }
 
 void sp(const char *msg);
 
-var_record *Table::genCall(string fname, int &var_num) {
-    var_record *pRec = NULL;
-    if (errorNum != 0)//有错误，不处理
-        return NULL;
-    sp("对函数调用规则进行语义检查");
-    if (fun_map.find(fname) != fun_map.end())//有函数声明，就可以调用
-    {
-        fun_record *pfun = fun_map[fname];
-        //匹配函数的参数
-        //2012-6-16 ：实参列表是共用的，因此需要动态维护
-        if (real_args_list.size() >= pfun->args->size())//实参个数足够时
-        {
-            int l = real_args_list.size();
-            int m = pfun->args->size();
-            for (int i = l - 1, j = m - 1; j >= 0; i--, j--) {
-                if (real_args_list[i]->type != (*(pfun->args))[j]) {
-                    semerror(real_args_err);
-                    break;
-                } else {
-                    //产生参数进栈代码
-                    var_record *ret = real_args_list[i];
-                    if (semerr != 0)//有错误，不生成
-                        break;
-                    if (ret->type == rsv_string) {
-                        fprintf(fout, "\tmov eax,[ebp%d]\n", ret->localAddr);//将副本字符串的地址放在eax中
-                    } else {
-                        if (ret->localAddr == 0)//全局的
-                            fprintf(fout, "\tmov eax,[@var_%s]\n", ret->name.c_str());
-                        else//局部的
-                        {
-                            if (ret->localAddr < 0)
-                                fprintf(fout, "\tmov eax,[ebp%d]\n", ret->localAddr);
-                            else
-                                fprintf(fout, "\tmov eax,[ebp+%d]\n", ret->localAddr);
-                        }
-                    }
-                    fprintf(fout, "\tpush eax\n");
-                }
-            }
-            if (showGen)
-                cout << "产生函数" << fname << "()的调用代码" << endl;
-            //产生函数调用代码
-            fprintf(fout, "\tcall %s\n", fname.c_str());
-            fprintf(fout, "\tadd esp,%d\n", 4 * l);
-            //产生函数返回代码
-            if (pfun->type != rsv_void)//非void函数在函数返回的时候将eax的数据放到临时变量中，为调用代码使用
-            {
-                pRec = tfun.create_tmpvar(pfun->type, 0, var_num);//创建临时变量
-                fprintf(fout, "\tmov [ebp%d],eax\n", pRec->localAddr);
-                if (pfun->type == rsv_string)//返回的是临时string，必须拷贝
-                {
-                    var_record empstr;
-                    string empname = "";
-                    empstr.init(rsv_string, empname);
-                    //src=genExp(src,addi,&empstr,var_num);
-                    pRec = genExp(&empstr, addi, pRec, var_num);
-                }
-            }
-            //清除实际参数
-            while (m--)
-                real_args_list.pop_back();
-        } else {
-            semerror(real_args_err);
-        }
-    } else {
-        semerror(fun_undec);
-    }
+var_record *Table::genCall(string fname, int
 
-    return pRec;
+&var_num) {
+var_record *pRec = NULL;
+if (errorNum != 0)//有错误，不处理
+return
+NULL;
+sp("对函数调用规则进行语义检查");
+if (fun_map.
+find(fname)
+!= fun_map.
+
+end()
+
+)//有函数声明，就可以调用
+{
+fun_record *pfun = fun_map[fname];
+//匹配函数的参数
+//2012-6-16 ：实参列表是共用的，因此需要动态维护
+if (real_args_list.
+
+size()
+
+>= pfun->args->
+
+size()
+
+)//实参个数足够时
+{
+int l = real_args_list.size();
+int m = pfun->args->size();
+for (
+int i = l - 1, j = m - 1;
+j >= 0; i--, j--) {
+if (real_args_list[i]->type != (*(pfun->args))[j]) {
+semerror(real_args_err);
+break;
+} else {
+//产生参数进栈代码
+var_record *ret = real_args_list[i];
+if (semerr != 0)//有错误，不生成
+break;
+if (ret->type == rsv_string) {
+fprintf(fout,
+"\tmov eax,[ebp%d]\n", ret->localAddr);//将副本字符串的地址放在eax中
+} else {
+if (ret->localAddr == 0)//全局的
+fprintf(fout,
+"\tmov eax,[@var_%s]\n", ret->name.
+
+c_str()
+
+);
+else//局部的
+{
+if (ret->localAddr < 0)
+fprintf(fout,
+"\tmov eax,[ebp%d]\n", ret->localAddr);
+else
+fprintf(fout,
+"\tmov eax,[ebp+%d]\n", ret->localAddr);
+}
+}
+fprintf(fout,
+"\tpush eax\n");
+}
+}
+if (showGen)
+cout << "产生函数" << fname << "()的调用代码" <<
+endl;
+//产生函数调用代码
+fprintf(fout,
+"\tcall %s\n", fname.
+
+c_str()
+
+);
+fprintf(fout,
+"\tadd esp,%d\n", 4 * l);
+//产生函数返回代码
+if (pfun->type != rsv_void)//非void函数在函数返回的时候将eax的数据放到临时变量中，为调用代码使用
+{
+pRec = tfun.create_tmpvar(pfun->type, 0, var_num);//创建临时变量
+fprintf(fout,
+"\tmov [ebp%d],eax\n", pRec->localAddr);
+if (pfun->type == rsv_string)//返回的是临时string，必须拷贝
+{
+var_record empstr;
+string empname = "";
+empstr.
+init(rsv_string, empname
+);
+//src=genExp(src,addi,&empstr,var_num);
+pRec = genExp(&empstr, addi, pRec, var_num);
+}
+}
+//清除实际参数
+while (m--)
+real_args_list.
+
+pop_back();
+
+} else {
+semerror(real_args_err);
+}
+} else {
+semerror(fun_undec);
+}
+
+return
+pRec;
 }
 
 int stringId = 0;//串空间标志串的Id——唯一
@@ -384,7 +494,8 @@ int Table::addstring()//返回串空间的索引,仅仅是记录串值其他符�
     if (synerr != 0)//有语法错误，不处理
         return 0;
     stringId++;
-    string *ps = new string();
+    string * ps = new
+    string();
     *ps += str;
     stringTable.push_back(ps);
     if (showTab)
@@ -407,14 +518,15 @@ void Table::addvar() {
         return;
     if (var_map.find(tvar.name) == var_map.end())//不存在重复记录
     {
-        var_record *pvar = new var_record(tvar);
+        var_record * pvar = new
+        var_record(tvar);
         var_map[tvar.name] = pvar;//插入tvar 信息到堆中
         if (showTab)
             cout << "\t\t\t全局变量 <" << symName[tvar.type] << ">(" << tvar.name << ")\t进入-->符号表" << endl;
     } else//存在记录，看看是不是已经声明的外部变量
     {
         sp("对全局变量的定义行进行语义检查");
-        var_record *pvar = var_map[tvar.name];
+        var_record * pvar = var_map[tvar.name];
         //刷新变量记录信息
         delete var_map[tvar.name];
         var_map[tvar.name] = pvar;//插入tvar 信息到堆中
@@ -462,7 +574,7 @@ void Table::delvar(string var_name)//删除变量记录
         return;
     if (var_map.find(var_name) != var_map.end())//有记录
     {
-        var_record *pvar = var_map[var_name];
+        var_record * pvar = var_map[var_name];
         delete pvar;
         var_map.erase(var_name);
     } else {
@@ -477,7 +589,8 @@ void Table::addfun() {
     sp("对函数的声明定义行进行语义检查");
     if (fun_map.find(tfun.name) == fun_map.end())//不存在记录《不管是否定义都插入，要是函数定义则defined字段已经设置过了》
     {
-        fun_record *pfun = new fun_record(tfun);
+        fun_record * pfun = new
+        fun_record(tfun);
         fun_map[tfun.name] = pfun;//插入tfun 信息到堆中
         if (showTab)
             cout << "\t\t\t函数 " << symName[tfun.type] << " " << tfun.name << "()\t进入-->符号表" << endl;
@@ -511,7 +624,8 @@ void Table::addfun() {
             return;
         } else {
             //插入新的定义声明
-            fun_record *pfun = new fun_record(tfun);
+            fun_record * pfun = new
+            fun_record(tfun);
             delete fun_map[tfun.name];//删除旧的函数记录
             fun_map[tfun.name] = pfun;//插入tfun 信息到堆中
             //参数声明不一致++
@@ -533,11 +647,11 @@ void Table::over()//进行最后的处理
         return;
     if (showGen)
         cout << "生成数据段中的静态数据区、文字池和辅助栈" << endl;
-    hash_map<string, var_record *, string_hash>::iterator var_i, var_iend = var_map.end();
+    hash_map<string, var_record * , string_hash>::iterator var_i, var_iend = var_map.end();
     //生成静态数据-全局变量
     fprintf(fout, "section .data\n");
     for (var_i = var_map.begin(); var_i != var_iend; var_i++) {
-        var_record *p_v = var_i->second;
+        var_record * p_v = var_i->second;
         int isEx = 0;
         if (p_v->externed) {
             isEx = 1;//标示外部变量，此处不进行输出extern
@@ -598,19 +712,21 @@ void Table::over()//进行最后的处理
 void Table::clear()//清空所有符号表
 {
     //删除var记录
-    hash_map<string, var_record *, string_hash>::iterator var_i, var_iend;
+    hash_map<string, var_record * , string_hash>::iterator var_i, var_iend;
     var_iend = var_map.end();
     for (var_i = var_map.begin(); var_i != var_iend; var_i++) {
 //     cout<<"删除变量记录"<<var_i->second->name<<endl;
-        delete var_i->second;//删除记录对象
+        delete
+        var_i->second;//删除记录对象
     }
     var_map.clear();
     //删除fun记录
-    hash_map<string, fun_record *, string_hash>::iterator fun_i, fun_iend;
+    hash_map<string, fun_record * , string_hash>::iterator fun_i, fun_iend;
     fun_iend = fun_map.end();
     for (fun_i = fun_map.begin(); fun_i != fun_iend; fun_i++) {
 //     cout<<"删除函数记录"<<fun_i->second->name<<endl;
-        delete fun_i->second;//删除记录对象
+        delete
+        fun_i->second;//删除记录对象
     }
     fun_map.clear();
     //删除串空间

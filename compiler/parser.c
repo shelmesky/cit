@@ -20,49 +20,101 @@ void paralist();
 
 void funtail(symbol dec_type, string dec_name);
 
-void block(int initvar_num, int &level, int lopId, int blockAddr);
+void block(int initvar_num, int
 
-void childprogram(int &num, int &level, int lopId, int blockAddr);
+&level,
+int lopId,
+int blockAddr
+);
 
-void localdec(int &num, int &level);
+void childprogram(int
 
-void localdectail(int &num, symbol local_type, int &level);
+&num, int &level,
+int lopId,
+int blockAddr
+);
 
-void statement(int &num, int &level, int lopId, int blockAddr);
+void localdec(int
 
-void whilestat(int &num, int &level);
+&num, int &level);
 
-void ifstat(int &num, int &level, int lopId, int blockAddr);
+void localdectail(int
 
-void retstat(int &num, int &level);
+&num,
+symbol local_type,
+int &level);
 
-void returntail(int &num, int &level);
+void statement(int
 
-var_record *idtail(string refname, int &num);
+&num, int &level,
+int lopId,
+int blockAddr
+);
 
-void realarg(string refname, int &var_num);
+void whilestat(int
 
-void arglist(int &num);
+&num, int &level);
 
-var_record *expr(int &num);
+void ifstat(int
 
-var_record *exptail(var_record *p_factor1, int &num);
+&num, int &level,
+int lopId,
+int blockAddr
+);
+
+void retstat(int
+
+&num, int &level);
+
+void returntail(int
+
+&num, int &level);
+
+var_record *idtail(string refname, int
+
+&num);
+
+void realarg(string refname, int
+
+&var_num);
+
+void arglist(int
+
+&num);
+
+var_record *expr(int
+
+&num);
+
+var_record *exptail(var_record *p_factor1, int
+
+&num);
 
 void cmps();
 
-var_record *aloexp(int &num);
+var_record *aloexp(int
 
-var_record *itemtail(var_record *p_factor1, int &num);
+&num);
+
+var_record *itemtail(var_record *p_factor1, int
+
+&num);
 
 void adds();
 
-var_record *item(int &num);
+var_record *item(int
 
-var_record *factortail(var_record *p_factor1, int &var_num);
+&num);
+
+var_record *factortail(var_record *p_factor1, int
+
+&var_num);
 
 void muls();
 
-var_record *factor(int &num);
+var_record *factor(int
+
+&num);
 
 //nextToken(),match(),语法分析
 char symName[][30] =
@@ -479,545 +531,781 @@ void paralist()//untest
 }
 
 //<block>		->	lbrac<childprogram>rbrac
-void block(int initvar_num, int &level, int lopId, int blockAddr) {
-    nextToken();
-    if (!match(lbrac))//丢失{
-    {
-        synterror(lbraclost, -1);
-        BACK
-    }
-    int var_num = initvar_num;//复合语句里变量的个数,一般是0，但是在if和while语句就不一定了
-    level++;//每次进入时加1
+void block(int initvar_num, int
 
-    childprogram(var_num, level, lopId, blockAddr);
+&level,
+int lopId,
+int blockAddr
+) {
+nextToken();
 
-    level--;
-    //match(rbrac);
-    //要清除局部变量名字表
-    tfun.poplocalvars(var_num);
+if (!
+match(lbrac)
+)//丢失{
+{
+synterror(lbraclost,
+-1);
+BACK
+}
+int var_num = initvar_num;//复合语句里变量的个数,一般是0，但是在if和while语句就不一定了
+level++;//每次进入时加1
+
+childprogram(var_num, level, lopId, blockAddr
+);
+
+level--;
+//match(rbrac);
+//要清除局部变量名字表
+tfun.
+poplocalvars(var_num);
 }
 
 //<childprogram>	->	<localdec><childprogram>|<statements><childprogram>|^
 int rbracislost = 0;//}丢失异常，维护恢复,紧急恢复
-void childprogram(int &var_num, int &level, int lopId, int blockAddr) {
-    nextToken();
-    if (token == semicon || token == rsv_while || token == rsv_if || token == rsv_return || token == ident
-        || token == rsv_break || token == rsv_continue || token == rsv_in || token == rsv_out)//正常的语句
-    {
-        statement(var_num, level, lopId, blockAddr);
-        childprogram(var_num, level, lopId, blockAddr);
-    } else if (token == rsv_void || token == rsv_int || token == rsv_char || token == rsv_string)//局部变量声明
-    {
-        localdec(var_num, level);
-        if (rbracislost == 1) {
-            rbracislost = 0;
-        } else {
-            childprogram(var_num, level, lopId, blockAddr);
-        }
-    } else if (token == rbrac)//复合语句结尾
-    {
-        return;//复合语句解析结束
-    } else if (token == null)//一直到文件最后没有}
-    {
-        synterror(rbraclost, -1);
-    } else//无效的语句
-    {
-        synterror(statementexcp, 0);
-    }
+void childprogram(int
+
+&var_num, int &level,
+int lopId,
+int blockAddr
+) {
+nextToken();
+
+if (token == semicon || token == rsv_while || token == rsv_if || token == rsv_return || token == ident
+|| token == rsv_break || token == rsv_continue || token == rsv_in || token == rsv_out)//正常的语句
+{
+statement(var_num, level, lopId, blockAddr
+);
+childprogram(var_num, level, lopId, blockAddr
+);
+} else if (token == rsv_void || token == rsv_int || token == rsv_char || token == rsv_string)//局部变量声明
+{
+localdec(var_num, level
+);
+if (rbracislost == 1) {
+rbracislost = 0;
+} else {
+childprogram(var_num, level, lopId, blockAddr
+);
+}
+} else if (token == rbrac)//复合语句结尾
+{
+return;//复合语句解析结束
+} else if (token == null)//一直到文件最后没有}
+{
+synterror(rbraclost,
+-1);
+} else//无效的语句
+{
+synterror(statementexcp,
+0);
+}
 }
 
 //<localdec>	->	<type>ident<lcoaldectail>semicon
-void localdec(int &var_num, int &level) {
-    symbol local_type;
-    string local_name = "";
-    local_type = type();
-    nextToken();
-    if (!match(ident))//标识符不匹配，极有可能是没有标识符,回退
-    {
-        synterror(identlost, -1);
-        BACK
-    } else {
-        sp("对局部变量的声明进行语义检查");
-        local_name += id;
-        int msg_back = table.hasname(local_name);
-        if (msg_back == 0)//防止局部变量名字重复
-        {
-            tvar.init(local_type, local_name);//初始化局部变量记录
-            tfun.pushlocalvar();//添加一个局部变量
-            p("局部变量声明", 1);
-            var_num++;
-        } else if (msg_back == 1) {
-            //局部变量定义重复错误
-            semerror(localvar_redef);
-        }
-        //其他不处理
+void localdec(int
 
-    }
-    nextToken();
-    localdectail(var_num, local_type, level);
-    //match(semicon);
+&var_num, int &level) {
+symbol local_type;
+string local_name = "";
+local_type = type();
+
+nextToken();
+
+if (!
+match(ident)
+)//标识符不匹配，极有可能是没有标识符,回退
+{
+synterror(identlost,
+-1);
+BACK
+} else {
+sp("对局部变量的声明进行语义检查");
+local_name +=
+id;
+int msg_back = table.hasname(local_name);
+if (msg_back == 0)//防止局部变量名字重复
+{
+tvar.
+init(local_type, local_name
+);//初始化局部变量记录
+tfun.
+
+pushlocalvar();//添加一个局部变量
+p("局部变量声明", 1);
+var_num++;
+} else if (msg_back == 1) {
+//局部变量定义重复错误
+semerror(localvar_redef);
+}
+//其他不处理
+
+}
+
+nextToken();
+
+localdectail(var_num, local_type, level
+);
+//match(semicon);
 }
 
 //<localvartail>	->	comma ident<localvartail>|^
-void localdectail(int &var_num, symbol local_type, int &level) {
-    if (token == comma) {
-        nextToken();
-        if (!match(ident)) {
-            BACK
-            synterror(localidentlost, -1);
-        } else {
-            sp("对局部变量的声明进行语义检查");
-            string local_name = "";
-            local_name += id;
-            int msg_back = table.hasname(local_name);
-            if (msg_back == 0)//防止局部变量名字重复
-            {
-                tvar.init(local_type, local_name);//初始化局部变量记录
-                tfun.pushlocalvar();//添加一个局部变量
-                p("局部变量声明", 1);
-                var_num++;
-            } else if (msg_back == 1) {
-                //局部变量定义重复错误
-                semerror(localvar_redef);
-            }
-        }
-        nextToken();
-        localdectail(var_num, local_type, level);
+void localdectail(int
 
-    } else if (token == semicon) {
-        return;
-    } else if (token == ident)//极有可能忘记逗号
-    {
-        synterror(commalost, -1);
-        nextToken();
-        localdectail(var_num, local_type, level);
-    } else if (token == rsv_int || token == rsv_void || token == rsv_char || token == rsv_string ||
-               token == rbrac)//忘记分号
-    {
-        synterror(semiconlost, -1);
-        BACK
-    } else if (token == lparen)//既有可能是丢失}导致后边的函数定义被解析为局部变量声明，此时应该报丢失}错误,--唯一一种识别}丢失的方式--，此时应该转到para()
-    {
-        rbracislost = 1;//}丢失
-        synterror(rbraclost, -1);
-        para();
-        block(0, level, 0, 0);
-    } else//其他符号，告知当作分号处理
-    {
-        synterror(semiconwrong, 0);
-    }
+&var_num,
+symbol local_type,
+int &level) {
+if (token == comma) {
+nextToken();
+
+if (!
+match(ident)
+) {
+BACK
+synterror(localidentlost,
+-1);
+} else {
+sp("对局部变量的声明进行语义检查");
+string local_name = "";
+local_name +=
+id;
+int msg_back = table.hasname(local_name);
+if (msg_back == 0)//防止局部变量名字重复
+{
+tvar.
+init(local_type, local_name
+);//初始化局部变量记录
+tfun.
+
+pushlocalvar();//添加一个局部变量
+p("局部变量声明", 1);
+var_num++;
+} else if (msg_back == 1) {
+//局部变量定义重复错误
+semerror(localvar_redef);
+}
+}
+
+nextToken();
+
+localdectail(var_num, local_type, level
+);
+
+} else if (token == semicon) {
+return;
+} else if (token == ident)//极有可能忘记逗号
+{
+synterror(commalost,
+-1);
+
+nextToken();
+
+localdectail(var_num, local_type, level
+);
+} else if (token == rsv_int || token == rsv_void || token == rsv_char || token == rsv_string ||
+token == rbrac)//忘记分号
+{
+synterror(semiconlost,
+-1);
+BACK
+} else if (token == lparen)//既有可能是丢失}导致后边的函数定义被解析为局部变量声明，此时应该报丢失}错误,--唯一一种识别}丢失的方式--，此时应该转到para()
+{
+rbracislost = 1;//}丢失
+synterror(rbraclost,
+-1);
+
+para();
+
+block(0, level, 0, 0);
+} else//其他符号，告知当作分号处理
+{
+synterror(semiconwrong,
+0);
+}
 }
 
 //<statement>	->	ident<idtail>semicon|<whilestat>|<ifstat>|<retstat>|semicon|rsv_break semicon|rsv_continue semicon
-void statement(int &var_num, int &level, int lopId, int blockAddr) {
-    string refname = "";
+void statement(int
 
-    switch (token) {
-        case semicon:
-            break;
-        case rsv_while:
-            p("while复合语句", 0);
-            whilestat(var_num, level);
-            break;
-        case rsv_if:
-            p("if-else复合语句", 0);
-            ifstat(var_num, level, lopId, blockAddr);
-            break;
-        case rsv_break:
-            p("break语句", 0);
-            nextToken();
-            if (token == ident || token == rsv_while || token == rsv_if || token == rsv_return || token == rsv_break ||
-                token == rsv_continue
-                || token == rsv_in || token == rsv_out || token == rbrac) {
-                synterror(semiconlost, -1);
-                BACK
-            } else if (token != semicon) {
-                synterror(semiconwrong, 0);
-            }
-            //生成break
-            sp("对break语句的位置进行语义检查");
-            if (lopId != 0) {
-                genBlock(blockAddr);
-                fprintf(fout, "\tjmp @while_%d_exit\n", lopId);
-            } else {
-                semerror(break_nin_while);
-            }
-            break;
-        case rsv_continue:
-            p("continue语句", 0);
-            nextToken();
-            if (token == ident || token == rsv_while || token == rsv_if || token == rsv_return || token == rsv_break ||
-                token == rsv_continue
-                || token == rsv_in || token == rsv_out || token == rbrac) {
-                synterror(semiconlost, -1);
-                BACK
-            } else if (token != semicon) {
-                synterror(semiconwrong, 0);
-            }
-            //生成continue
-            sp("对continue语句的位置进行语义检查");
-            if (lopId != 0) {
-                genBlock(blockAddr);
-                fprintf(fout, "\tjmp @while_%d_lop\n", lopId);
-            } else {
-                semerror(continue_nin_while);
-            }
-            break;
-        case rsv_return:
-            p("return语句", 0);
-            retstat(var_num, level);
-            break;
-        case rsv_in:
-            p("in语句", 0);
-            nextToken();
-            if (!match(input)) {
-                synterror(input_err, 0);
-            }
-            nextToken();
-            if (!match(ident)) {
-                synterror(na_input, 0);
-            } else {
-                refname += id;
-                ///input
-                genInput(table.getVar(refname), var_num);
-            }
-            nextToken();
-            if (!match(semicon)) {
-                synterror(semiconlost, -1);
-                BACK
-            }
-            break;
-        case rsv_out:
-            p("out语句", 0);
-            nextToken();
-            if (!match(output)) {
-                synterror(output_err, 0);
-            }
-            ///output
-            genOutput(expr(var_num), var_num);
-            nextToken();
-            if (!match(semicon)) {
-                synterror(semiconlost, -1);
-                BACK
-            }
-            break;
-        case ident:
-            //错误检查
-            refname += id;
-            idtail(refname, var_num);
-            nextToken();
-            if (!match(semicon))//赋值语句或者函数调用语句丢失分号，记得回退
-            {
-                synterror(semiconlost, -1);
-                BACK
-            }
-            break;
-    }
+&var_num, int &level,
+int lopId,
+int blockAddr
+) {
+string refname = "";
+
+switch (token) {
+case semicon:
+break;
+case rsv_while:
+p("while复合语句", 0);
+whilestat(var_num, level
+);
+break;
+case rsv_if:
+p("if-else复合语句", 0);
+ifstat(var_num, level, lopId, blockAddr
+);
+break;
+case rsv_break:
+p("break语句", 0);
+
+nextToken();
+
+if (token == ident || token == rsv_while || token == rsv_if || token == rsv_return || token == rsv_break ||
+token == rsv_continue
+|| token == rsv_in || token == rsv_out || token == rbrac) {
+synterror(semiconlost,
+-1);
+BACK
+} else if (token != semicon) {
+synterror(semiconwrong,
+0);
+}
+//生成break
+sp("对break语句的位置进行语义检查");
+if (lopId != 0) {
+genBlock(blockAddr);
+fprintf(fout,
+"\tjmp @while_%d_exit\n", lopId);
+} else {
+semerror(break_nin_while);
+}
+break;
+case rsv_continue:
+p("continue语句", 0);
+
+nextToken();
+
+if (token == ident || token == rsv_while || token == rsv_if || token == rsv_return || token == rsv_break ||
+token == rsv_continue
+|| token == rsv_in || token == rsv_out || token == rbrac) {
+synterror(semiconlost,
+-1);
+BACK
+} else if (token != semicon) {
+synterror(semiconwrong,
+0);
+}
+//生成continue
+sp("对continue语句的位置进行语义检查");
+if (lopId != 0) {
+genBlock(blockAddr);
+fprintf(fout,
+"\tjmp @while_%d_lop\n", lopId);
+} else {
+semerror(continue_nin_while);
+}
+break;
+case rsv_return:
+p("return语句", 0);
+retstat(var_num, level
+);
+break;
+case rsv_in:
+p("in语句", 0);
+
+nextToken();
+
+if (!
+match(input)
+) {
+synterror(input_err,
+0);
+}
+
+nextToken();
+
+if (!
+match(ident)
+) {
+synterror(na_input,
+0);
+} else {
+refname +=
+id;
+///input
+genInput(table
+.
+getVar(refname), var_num
+);
+}
+
+nextToken();
+
+if (!
+match(semicon)
+) {
+synterror(semiconlost,
+-1);
+BACK
+}
+break;
+case rsv_out:
+p("out语句", 0);
+
+nextToken();
+
+if (!
+match(output)
+) {
+synterror(output_err,
+0);
+}
+
+///output
+genOutput(expr(var_num), var_num
+
+);
+
+nextToken();
+
+if (!
+match(semicon)
+) {
+synterror(semiconlost,
+-1);
+BACK
+}
+break;
+case ident:
+//错误检查
+refname +=
+id;
+idtail(refname, var_num
+);
+
+nextToken();
+
+if (!
+match(semicon)
+)//赋值语句或者函数调用语句丢失分号，记得回退
+{
+synterror(semiconlost,
+-1);
+BACK
+}
+break;
+}
 }
 
 int lopID = 0;
 
 //<whilestat>	->	rsv_while lparen<expr>rparen<block>
-void whilestat(int &var_num, int &level) {
-    lopID++;
-    int id = lopID;
-    nextToken();
-    if (!match(lparen)) {
-        if (token == ident || token == number || token == chara || token == strings || token == lparen) {
-            synterror(lparenlost, -1);
-            BACK
-        } else//无效字符
-        {
-            synterror(lparenwrong, 0);
-        }
-    }
-    if (showGen)
-        cout << "生成while循环框架" << endl;
-    fprintf(fout, "@while_%d_lop:\n", id);
-    int blockAddr = genBlock(-1);
-    int initvar_num_while = 0;//把条件表达式放在块内部的处理
-    var_record *cond = expr(initvar_num_while);
-    genCondition(cond);//产生调价表达式的代码
-    fprintf(fout, "\tje @while_%d_exit\n", id);
+void whilestat(int
 
-    nextToken();
-    if (!match(rparen)) {
-        if (token == lbrac ||
-            token == semicon || token == rsv_while || token == rsv_if || token == rsv_return || token == rsv_break ||
-            token == rsv_continue || token == rsv_in || token == rsv_out ||
-            token == ident || token == rsv_void || token == rsv_int || token == rsv_char || token == rsv_string) {
-            synterror(staterparenlost, -1);
-            BACK
-        } else//无效字符
-        {
-            synterror(rparenwrong, 0);
-        }
-    }
+&var_num, int &level) {
+lopID++;
+int id = lopID;
 
-    block(initvar_num_while, level, lopID, blockAddr);
-    genBlock(blockAddr);
-    fprintf(fout, "\tjmp @while_%d_lop\n", id);
-    fprintf(fout, "@while_%d_exit:\n", id);
+nextToken();
+
+if (!
+match(lparen)
+) {
+if (token == ident || token == number || token == chara || token == strings || token == lparen) {
+synterror(lparenlost,
+-1);
+BACK
+} else//无效字符
+{
+synterror(lparenwrong,
+0);
+}
+}
+if (showGen)
+cout << "生成while循环框架" <<
+endl;
+fprintf(fout,
+"@while_%d_lop:\n", id);
+int blockAddr = genBlock(-1);
+int initvar_num_while = 0;//把条件表达式放在块内部的处理
+var_record *cond = expr(initvar_num_while);
+genCondition(cond);//产生调价表达式的代码
+fprintf(fout,
+"\tje @while_%d_exit\n", id);
+
+nextToken();
+
+if (!
+match(rparen)
+) {
+if (token == lbrac ||
+token == semicon || token == rsv_while || token == rsv_if || token == rsv_return || token == rsv_break ||
+token == rsv_continue || token == rsv_in || token == rsv_out ||
+token == ident || token == rsv_void || token == rsv_int || token == rsv_char || token == rsv_string) {
+synterror(staterparenlost,
+-1);
+BACK
+} else//无效字符
+{
+synterror(rparenwrong,
+0);
+}
+}
+
+block(initvar_num_while, level, lopID, blockAddr
+);
+genBlock(blockAddr);
+fprintf(fout,
+"\tjmp @while_%d_lop\n", id);
+fprintf(fout,
+"@while_%d_exit:\n", id);
 }
 
 int ifID = 0;
 
 //<ifstat>	->	rsv_if lparen<expr>rparen<block>rsv_else<block>
-void ifstat(int &var_num, int &level, int lopId, int blockAddr) {
-    ifID++;
-    int id = ifID;
-    nextToken();
-    if (!match(lparen)) {
-        if (token == ident || token == number || token == chara || token == strings || token == lparen) {
-            synterror(lparenlost, -1);
-            BACK
-        } else//无效字符
-        {
-            synterror(lparenwrong, 0);
-        }
-    }
-    if (showGen)
-        cout << "生成if-else条件框架" << endl;
-    int blockAddr1 = genBlock(-1);
-    int initvar_num_if = 0;//把条件表达式放在块内部的处理
-    var_record *cond = expr(initvar_num_if);
-    genCondition(cond);//产生调价表达式的代码
-    fprintf(fout, "\tje @if_%d_middle\n", id);
-    nextToken();
-    if (!match(rparen)) {
-        if (token == lbrac ||
-            token == semicon || token == rsv_while || token == rsv_if || token == rsv_return || token == rsv_break ||
-            token == rsv_continue
-            || token == rsv_in || token == rsv_out ||
-            token == ident || token == rsv_void || token == rsv_int || token == rsv_char || token == rsv_string) {
-            synterror(staterparenlost, -1);
-            BACK
-        } else//无效字符
-        {
-            synterror(rparenwrong, 0);
-        }
-    }
+void ifstat(int
 
-    block(initvar_num_if, level, lopId, blockAddr);
-    genBlock(blockAddr1);
-    fprintf(fout, "\tjmp @if_%d_end\n", id);
-    fprintf(fout, "@if_%d_middle:\n", id);
-    genBlock(blockAddr1);//在转到else之后要有退出代码，保证条件的临时变量清除
+&var_num, int &level,
+int lopId,
+int blockAddr
+) {
+ifID++;
+int id = ifID;
 
-    nextToken();
-    if (!match(rsv_else)) {
-        if (token == lbrac ||
-            token == semicon || token == rsv_while || token == rsv_if || token == rsv_return || token == rsv_break ||
-            token == rsv_continue || token == rsv_in || token == rsv_out
-            || token == rsv_void || token == rsv_int || token == rsv_char || token == rsv_string)//else 丢失
-        {
-            synterror(elselost, -1);
-            BACK
-        } else if (token == ident)//else 拼写错误
-        {
-            synterror(elsespelterr, 0);
-        } else {
-            synterror(elsewrong, 0);//意外字符
-        }
-    } else {
-    }
+nextToken();
 
-    block(0, level, lopId, blockAddr);
-    genBlock(blockAddr1);
-    fprintf(fout, "@if_%d_end:\n", id);
+if (!
+match(lparen)
+) {
+if (token == ident || token == number || token == chara || token == strings || token == lparen) {
+synterror(lparenlost,
+-1);
+BACK
+} else//无效字符
+{
+synterror(lparenwrong,
+0);
+}
+}
+if (showGen)
+cout << "生成if-else条件框架" <<
+endl;
+int blockAddr1 = genBlock(-1);
+int initvar_num_if = 0;//把条件表达式放在块内部的处理
+var_record *cond = expr(initvar_num_if);
+genCondition(cond);//产生调价表达式的代码
+fprintf(fout,
+"\tje @if_%d_middle\n", id);
+
+nextToken();
+
+if (!
+match(rparen)
+) {
+if (token == lbrac ||
+token == semicon || token == rsv_while || token == rsv_if || token == rsv_return || token == rsv_break ||
+token == rsv_continue
+|| token == rsv_in || token == rsv_out ||
+token == ident || token == rsv_void || token == rsv_int || token == rsv_char || token == rsv_string) {
+synterror(staterparenlost,
+-1);
+BACK
+} else//无效字符
+{
+synterror(rparenwrong,
+0);
+}
+}
+
+block(initvar_num_if, level, lopId, blockAddr
+);
+genBlock(blockAddr1);
+fprintf(fout,
+"\tjmp @if_%d_end\n", id);
+fprintf(fout,
+"@if_%d_middle:\n", id);
+genBlock(blockAddr1);//在转到else之后要有退出代码，保证条件的临时变量清除
+
+nextToken();
+
+if (!
+match(rsv_else)
+) {
+if (token == lbrac ||
+token == semicon || token == rsv_while || token == rsv_if || token == rsv_return || token == rsv_break ||
+token == rsv_continue || token == rsv_in || token == rsv_out
+|| token == rsv_void || token == rsv_int || token == rsv_char || token == rsv_string)//else 丢失
+{
+synterror(elselost,
+-1);
+BACK
+} else if (token == ident)//else 拼写错误
+{
+synterror(elsespelterr,
+0);
+} else {
+synterror(elsewrong,
+0);//意外字符
+}
+} else {
+}
+
+block(0, level, lopId, blockAddr);
+genBlock(blockAddr1);
+fprintf(fout,
+"@if_%d_end:\n", id);
 
 
 }
 
 //<retstat>	->	rsv_return<expr>semicon
-void retstat(int &var_num, int &level) {
-    returntail(var_num, level);
-    nextToken();
-    if (!match(semicon)) {
-        if (token == rbrac)//丢失return 后边的 ;
-        {
-            synterror(semiconlost, -1);
-            BACK
-        }
-    }
+void retstat(int
+
+&var_num, int &level) {
+returntail(var_num, level
+);
+
+nextToken();
+
+if (!
+match(semicon)
+) {
+if (token == rbrac)//丢失return 后边的 ;
+{
+synterror(semiconlost,
+-1);
+BACK
+}
+}
 }
 
 //<returntail>	->	<expr>|^
-void returntail(int &var_num, int &level) {
-    if (level == 1)
-        tfun.hadret = 1;
+void returntail(int
+
+&var_num, int &level) {
+if (level == 1)
+tfun.
+hadret = 1;
 
 
-    nextToken();
-    if (token == ident || token == number || token == chara || token == strings || token == lparen) {
-        BACK
-        var_record *ret = expr(var_num);
-        sp("对return语句返回值的类型进行语义检查");
-        if (ret != NULL && (ret->type != tfun.type)) {
-            //返回值类型不兼容
-            semerror(ret_type_err);
-        }
-        genReturn(ret, var_num);
+nextToken();
 
-    } else if (token == semicon)//return ;
-    {
-        BACK
-        sp("对return语句返回值的类型进行语义检查");
-        if (rsv_void != tfun.type) {
-            //返回值类型不兼容
-            semerror(ret_type_err);
-        }
-        genReturn(NULL, var_num);
-        return;
-    } else if (token == rbrac) {
-        BACK
-        return;
-    } else {
-        synterror(returnwrong, 0);
-    }
+if (token == ident || token == number || token == chara || token == strings || token == lparen) {
+BACK
+var_record *ret = expr(var_num);
+sp("对return语句返回值的类型进行语义检查");
+if (ret != NULL && (ret->type != tfun.type)) {
+//返回值类型不兼容
+semerror(ret_type_err);
+}
+genReturn(ret, var_num
+);
+
+} else if (token == semicon)//return ;
+{
+BACK
+sp("对return语句返回值的类型进行语义检查");
+if (rsv_void != tfun.type) {
+//返回值类型不兼容
+semerror(ret_type_err);
+}
+genReturn(NULL, var_num
+);
+return;
+} else if (token == rbrac) {
+BACK
+return;
+} else {
+synterror(returnwrong,
+0);
+}
 }
 //<idtail>	->	assign<expr>|lparen<realarg>rparen
 
-var_record *idtail(string refname, int &var_num) {
-    nextToken();
+var_record *idtail(string refname, int
 
-    if (token == assign) {
-        p("赋值语句", 0);
-        var_record *src = expr(var_num);
-        var_record *des = table.getVar(refname);
-        return genAssign(des, src, var_num);
-    } else if (token == lparen) {
-        realarg(refname, var_num);
-        p("函数调用语句", 0);
-        //生成参数代码
-        var_record *var_ret = table.genCall(refname, var_num);
-        nextToken();
-        if (!match(rparen)) {
-            synterror(rparenlost, -1);
-            BACK
-        }
-        return var_ret;
-    } else if (identinexpr == 1)//表达式中可以单独出现标识符，基于此消除表达式中非a=b类型的错误
-    {
-        identinexpr = 0;
-        BACK
-        return table.getVar(refname);
-    } else {
-        synterror(idtaillost, -1);
-        BACK
-    }
-    return NULL;
+&var_num) {
+nextToken();
+
+if (token == assign) {
+p("赋值语句", 0);
+var_record *src = expr(var_num);
+var_record *des = table.getVar(refname);
+return
+genAssign(des, src, var_num
+);
+} else if (token == lparen) {
+realarg(refname, var_num
+);
+p("函数调用语句", 0);
+//生成参数代码
+var_record *var_ret = table.genCall(refname, var_num);
+
+nextToken();
+
+if (!
+match(rparen)
+) {
+synterror(rparenlost,
+-1);
+BACK
+}
+return
+var_ret;
+} else if (identinexpr == 1)//表达式中可以单独出现标识符，基于此消除表达式中非a=b类型的错误
+{
+identinexpr = 0;
+BACK
+return table.
+getVar(refname);
+} else {
+synterror(idtaillost,
+-1);
+BACK
+}
+return
+NULL;
 }
 
 //<realarg>	->	<expr><arglist>|^
-void realarg(string refname, int &var_num) {
-    nextToken();
-    if (token == ident || token == number || token == chara || token == strings || token == lparen) {
-        BACK
+void realarg(string refname, int
 
-        table.addrealarg(expr(var_num), var_num);
-        arglist(var_num);
-    } else if (token == rparen || token == semicon)//^
-    {
-        BACK
-        return;
-    } else if (token == comma)//参数丢失
-    {
-        synterror(arglost, -1);
-        BACK
-        arglist(var_num);
-    } else//报错
-    {
-        synterror(argwrong, 0);
-    }
+&var_num) {
+nextToken();
+
+if (token == ident || token == number || token == chara || token == strings || token == lparen) {
+BACK
+
+table.
+
+addrealarg(expr(var_num), var_num
+
+);
+arglist(var_num);
+} else if (token == rparen || token == semicon)//^
+{
+BACK
+return;
+} else if (token == comma)//参数丢失
+{
+synterror(arglost,
+-1);
+BACK
+arglist(var_num);
+} else//报错
+{
+synterror(argwrong,
+0);
+}
 }
 
 //<arglist>	->	comma<expr><arglist>|^
-void arglist(int &var_num) {
-    nextToken();
-    if (token == comma) {
-        nextToken();
-        if (token == ident || token == number || token == chara || token == strings || token == lparen) {
-            BACK
-            table.addrealarg(expr(var_num), var_num);
-            arglist(var_num);
-        } else if (token == comma) {
-            synterror(arglost, -1);
-            BACK
-            arglist(var_num);
-        } else if (token == semicon || token == rparen) {
-            synterror(arglost, -1);
-            BACK
-            return;
-        } else {
-            synterror(argwrong, 0);
-        }
+void arglist(int
 
-    } else if (token == rparen || token == semicon) {
-        BACK
-        return;
-    } else if (token == ident || token == number || token == chara || token == strings || token == lparen)//极有可能忘记逗号
-    {
-        synterror(commalost, -1);
-        BACK
-        expr(var_num);
-        arglist(var_num);
-    } else//其他符号，告知当作分号处理
-    {
-        synterror(arglistwrong, 0);
-    }
+&var_num) {
+nextToken();
+
+if (token == comma) {
+nextToken();
+
+if (token == ident || token == number || token == chara || token == strings || token == lparen) {
+BACK
+table.
+
+addrealarg(expr(var_num), var_num
+
+);
+arglist(var_num);
+} else if (token == comma) {
+synterror(arglost,
+-1);
+BACK
+arglist(var_num);
+} else if (token == semicon || token == rparen) {
+synterror(arglost,
+-1);
+BACK
+return;
+} else {
+synterror(argwrong,
+0);
+}
+
+} else if (token == rparen || token == semicon) {
+BACK
+return;
+} else if (token == ident || token == number || token == chara || token == strings || token == lparen)//极有可能忘记逗号
+{
+synterror(commalost,
+-1);
+BACK
+expr(var_num);
+arglist(var_num);
+} else//其他符号，告知当作分号处理
+{
+synterror(arglistwrong,
+0);
+}
 }
 
 //<exp>		->	<aloexp><exptail>
-var_record *expr(int &var_num) {
-    var_record *p_factor1 = aloexp(var_num);
-    var_record *p_factor2 = exptail(p_factor1, var_num);
-    if (p_factor2 == NULL)
-        return p_factor1;
-    else
-        return p_factor2;
+var_record *expr(int
+
+&var_num) {
+var_record *p_factor1 = aloexp(var_num);
+var_record *p_factor2 = exptail(p_factor1, var_num);
+if (p_factor2 == NULL)
+return
+p_factor1;
+else
+return
+p_factor2;
 }
 
 //<exptail>	->	<cmps><expr>|^
-var_record *exptail(var_record *p_factor1, int &var_num) {
-    nextToken();
-    if (token == gt || token == ge || token == lt || token == le || token == equ || token == nequ)//正常的算术表达式
-    {
-        //cmps();
-        symbol t = token;
+var_record *exptail(var_record *p_factor1, int
 
-        var_record *p_factor2 = expr(var_num);
-        return genExp(p_factor1, t, p_factor2, var_num);//生成代码
-    } else if (token == ident || token == number || token == chara || token == strings || token == lparen)//缺少运算符
-    {
-        synterror(opplost, -1);
-        BACK
-        expr(var_num);
-    } else if (token == semicon || token == rparen || token == comma//一般结束
-               || token == rbrac || token == rsv_return || token == rsv_break || token == rsv_continue ||
-               token == rsv_in || token == rsv_out || token == rsv_while || token == rsv_if//意外结束
-               || token == rsv_int || token == rsv_void || token == rsv_char || token == rsv_string
-            ) {
-        BACK
-        return NULL;
-    } else {
-        nextToken();
-        if (token == semicon || token == rparen || token == comma)//结束,意外符号
-        {
-            synterror(oppwrong, 0);
-            BACK
-            return NULL;
-        } else if (token == ident || token == number || token == chara || token == strings || token == lparen)//缺少运算符
-        {
-            synterror(oppwrong, 0);
-            BACK
-            expr(var_num);
-        } else {
-            synterror(oppwrong, 0);
-            return NULL;
-        }
+&var_num) {
+nextToken();
 
-    }
+if (token == gt || token == ge || token == lt || token == le || token == equ || token == nequ)//正常的算术表达式
+{
+//cmps();
+symbol t = token;
+
+var_record *p_factor2 = expr(var_num);
+return
+genExp(p_factor1, t, p_factor2, var_num
+);//生成代码
+} else if (token == ident || token == number || token == chara || token == strings || token == lparen)//缺少运算符
+{
+synterror(opplost,
+-1);
+BACK
+expr(var_num);
+} else if (token == semicon || token == rparen || token == comma//一般结束
+|| token == rbrac || token == rsv_return || token == rsv_break || token == rsv_continue ||
+token == rsv_in || token == rsv_out || token == rsv_while || token == rsv_if//意外结束
+|| token == rsv_int || token == rsv_void || token == rsv_char || token == rsv_string
+) {
+BACK
+return
+NULL;
+} else {
+nextToken();
+
+if (token == semicon || token == rparen || token == comma)//结束,意外符号
+{
+synterror(oppwrong,
+0);
+BACK
+return
+NULL;
+} else if (token == ident || token == number || token == chara || token == strings || token == lparen)//缺少运算符
+{
+synterror(oppwrong,
+0);
+BACK
+expr(var_num);
+} else {
+synterror(oppwrong,
+0);
+return
+NULL;
+}
+
+}
 }
 
 //<cmps>		->	gt|ge|ls|le|equ|nequ
@@ -1039,37 +1327,49 @@ void cmps() {
 }
 
 //<aloexp>	->	<item><itemtail>
-var_record *aloexp(int &var_num) {
-    var_record *p_factor1 = item(var_num);
-    var_record *p_factor2 = itemtail(p_factor1, var_num);
-    if (p_factor2 == NULL)
-        return p_factor1;
-    else
-        return p_factor2;
+var_record *aloexp(int
+
+&var_num) {
+var_record *p_factor1 = item(var_num);
+var_record *p_factor2 = itemtail(p_factor1, var_num);
+if (p_factor2 == NULL)
+return
+p_factor1;
+else
+return
+p_factor2;
 }
 
 //<itemtail>	->	<adds><aloexp>|^
-var_record *itemtail(var_record *p_factor1, int &var_num) {
-    nextToken();
-    if (token == addi || token == subs)//正常项
-    {
-        //adds();
-        symbol t = token;
+var_record *itemtail(var_record *p_factor1, int
 
-        var_record *p_factor2 = aloexp(var_num);
-        return genExp(p_factor1, t, p_factor2, var_num);//生成代码
-    } else if (token == ident || token == number || token == chara || token == strings || token == lparen)//丢失项运算符
-    {
-        synterror(opplost, -1);
-        BACK
-        aloexp(var_num);
-    } else//可能是项运算符错误，也可能是其他的低级运算符
-    {
-        //返回交给上级处理，实在不是运算符的话会报错，不需要提前处理
-        BACK
-        return NULL;
-    }
-    return NULL;
+&var_num) {
+nextToken();
+
+if (token == addi || token == subs)//正常项
+{
+//adds();
+symbol t = token;
+
+var_record *p_factor2 = aloexp(var_num);
+return
+genExp(p_factor1, t, p_factor2, var_num
+);//生成代码
+} else if (token == ident || token == number || token == chara || token == strings || token == lparen)//丢失项运算符
+{
+synterror(opplost,
+-1);
+BACK
+aloexp(var_num);
+} else//可能是项运算符错误，也可能是其他的低级运算符
+{
+//返回交给上级处理，实在不是运算符的话会报错，不需要提前处理
+BACK
+return
+NULL;
+}
+return
+NULL;
 }
 
 //<adds>		->	add|sub
@@ -1083,37 +1383,49 @@ void adds() {
 }
 
 //<item>		->	<factor><factortail>
-var_record *item(int &var_num) {
-    var_record *p_factor1 = factor(var_num);
-    var_record *p_factor2 = factortail(p_factor1, var_num);
-    if (p_factor2 == NULL)
-        return p_factor1;
-    else
-        return p_factor2;
+var_record *item(int
+
+&var_num) {
+var_record *p_factor1 = factor(var_num);
+var_record *p_factor2 = factortail(p_factor1, var_num);
+if (p_factor2 == NULL)
+return
+p_factor1;
+else
+return
+p_factor2;
 }
 
 //<factortail>	->	<muls><item>|^
-var_record *factortail(var_record *p_factor1, int &var_num) {
-    nextToken();
-    if (token == mult || token == divi)//正常因子
-    {
-        //muls();
-        symbol t = token;
+var_record *factortail(var_record *p_factor1, int
 
-        var_record *p_factor2 = item(var_num);
-        return genExp(p_factor1, t, p_factor2, var_num);//生成代码
-    } else if (token == ident || token == number || token == chara || token == strings || token == lparen)//丢失因子运算符
-    {
-        synterror(opplost, -1);
-        BACK
-        item(var_num);
-    } else//可能是因子运算符错误，也可能是其他的低级运算符
-    {
-        //返回交给上级处理，实在不是运算符的话会报错，不需要提前处理
-        BACK
-        return NULL;
-    }
-    return NULL;
+&var_num) {
+nextToken();
+
+if (token == mult || token == divi)//正常因子
+{
+//muls();
+symbol t = token;
+
+var_record *p_factor2 = item(var_num);
+return
+genExp(p_factor1, t, p_factor2, var_num
+);//生成代码
+} else if (token == ident || token == number || token == chara || token == strings || token == lparen)//丢失因子运算符
+{
+synterror(opplost,
+-1);
+BACK
+item(var_num);
+} else//可能是因子运算符错误，也可能是其他的低级运算符
+{
+//返回交给上级处理，实在不是运算符的话会报错，不需要提前处理
+BACK
+return
+NULL;
+}
+return
+NULL;
 }
 
 //<muls>		->	mul|div
@@ -1127,44 +1439,56 @@ void muls() {
 }
 
 //<factor>		->	ident<idtail>|number|chara|lparen<expr>rparen|strings
-var_record *factor(int &var_num)//临时变量替换方式,运算元素是地址！
+var_record *factor(int
+
+&var_num)//临时变量替换方式,运算元素是地址！
 {
-    nextToken();
-    var_record *p_tmpvar = NULL;//记录表达式计算中间结果的临时变量记录的指针
-    string refname = "";
-    switch (token) {
-        case ident:
-            identinexpr = 1;
-            refname += id;
-            p_tmpvar = idtail(refname, var_num);
-            break;
-        case number:
-            p_tmpvar = tfun.create_tmpvar(rsv_int, 1, var_num);
-            break;
-        case chara:
-            p_tmpvar = tfun.create_tmpvar(rsv_char, 1, var_num);
-            break;
-        case lparen:
-            p_tmpvar = expr(var_num);
-            nextToken();
-            if (!match(rparen)) {
-                synterror(exprparenlost, -1);
-                BACK
-            }
-            break;
-        case strings:
-            p_tmpvar = tfun.create_tmpvar(rsv_string, 1, var_num);
-            break;
-        default:
-            if (token == rparen || token == semicon || token == comma ||
-                token == gt || token == ge || token == lt || token == le || token == equ || token == nequ ||
-                token == addi || token == subs || token == mult || token == divi
-                    ) {
-                synterror(exprlost, -1);//表达式丢失
-                BACK
-            } else {
-                synterror(exprwrong, 0);//无效的表达式
-            }
-    }
-    return p_tmpvar;
+nextToken();
+
+var_record *p_tmpvar = NULL;//记录表达式计算中间结果的临时变量记录的指针
+string refname = "";
+switch (token) {
+case ident:
+identinexpr = 1;
+refname +=
+id;
+p_tmpvar = idtail(refname, var_num);
+break;
+case number:
+p_tmpvar = tfun.create_tmpvar(rsv_int, 1, var_num);
+break;
+case chara:
+p_tmpvar = tfun.create_tmpvar(rsv_char, 1, var_num);
+break;
+case lparen:
+p_tmpvar = expr(var_num);
+
+nextToken();
+
+if (!
+match(rparen)
+) {
+synterror(exprparenlost,
+-1);
+BACK
+}
+break;
+case strings:
+p_tmpvar = tfun.create_tmpvar(rsv_string, 1, var_num);
+break;
+default:
+if (token == rparen || token == semicon || token == comma ||
+token == gt || token == ge || token == lt || token == le || token == equ || token == nequ ||
+token == addi || token == subs || token == mult || token == divi
+) {
+synterror(exprlost,
+-1);//表达式丢失
+BACK
+} else {
+synterror(exprwrong,
+0);//无效的表达式
+}
+}
+return
+p_tmpvar;
 }
