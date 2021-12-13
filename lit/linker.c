@@ -12,7 +12,7 @@ Block::Block(char *d, unsigned int off, unsigned int s) {
 
 Block::~Block() {
     delete[]
-    data;
+            data;
 }
 
 SegList::~SegList() {
@@ -28,61 +28,56 @@ SegList::~SegList() {
 	off:文件偏移地址
 	base:加载基址，修改后提供给其他段
 */
-void SegList::allocAddr(string name, unsigned int
+void SegList::allocAddr(string name, unsigned int &base, unsigned int &off) {
 
-& base,unsigned int& off)
-{
-
-begin = off;//记录对齐前偏移
+    begin = off;//记录对齐前偏移
 //虚拟地址对齐，让所有的段按照4k字节对齐
-if(name!=".bss")//.bss段直接紧跟上一个段，一般是.data,因此定义处理段时需要将.data和.bss放在最后
-base+=(MEM_ALIGN-base%MEM_ALIGN)%MEM_ALIGN;
+    if (name != ".bss")//.bss段直接紧跟上一个段，一般是.data,因此定义处理段时需要将.data和.bss放在最后
+        base += (MEM_ALIGN - base % MEM_ALIGN) % MEM_ALIGN;
 //偏移地址对齐，让一般段按照4字节对齐，文本段按照16字节对齐
-int align = DISC_ALIGN;
-if(name==".text")
-align = 16;
-off+=(align-off%align)%
-align;
+    int align = DISC_ALIGN;
+    if (name == ".text")
+        align = 16;
+    off += (align - off % align) %
+           align;
 //使虚址和偏移按照4k模同余
-base = base - base % MEM_ALIGN + off % MEM_ALIGN;
+    base = base - base % MEM_ALIGN + off % MEM_ALIGN;
 //累加地址和偏移
-baseAddr = base;
-offset = off;
-size = 0;
-for(
-int i = 0;
-i<ownerList.
+    baseAddr = base;
+    offset = off;
+    size = 0;
+    for (
+            int i = 0;
+            i < ownerList.
 
-size();
+                    size();
 
-++i)
-{
-size+=(DISC_ALIGN-size%DISC_ALIGN)%DISC_ALIGN;//对齐每个小段，按照4字节
-Elf32_Shdr *seg = ownerList[i]->shdrTab[name];
+            ++i) {
+        size += (DISC_ALIGN - size % DISC_ALIGN) % DISC_ALIGN;//对齐每个小段，按照4字节
+        Elf32_Shdr *seg = ownerList[i]->shdrTab[name];
 //读取需要合并段的数据
-if(name!=".bss")
-{
-char *buf = new
-char[seg->sh_size];//申请数据缓存
-ownerList[i]->
-getData(buf, seg
-->sh_offset,seg->sh_size);//读取数据
-blocks.
-push_back(new
-Block(buf, size, seg
-->sh_size));//记录数据，对于.bss段数据是空的，不能重定位！没有common段！！！
-}
+        if (name != ".bss") {
+            char *buf = new
+                    char[seg->sh_size];//申请数据缓存
+            ownerList[i]->
+                    getData(buf, seg
+                    ->sh_offset, seg->sh_size);//读取数据
+            blocks.
+                    push_back(new
+                                      Block(buf, size, seg
+                    ->sh_size));//记录数据，对于.bss段数据是空的，不能重定位！没有common段！！！
+        }
 //修改每个文件中对应段的addr
-seg->
-sh_addr = base + size;//修改每个文件的段虚拟，为了方便计算符号或者重定位的虚址，不需要保存合并后文件偏移
-size+=seg->
-sh_size;//累加段大小
-}
-base+=
-size;//累加基址
-if(name!=".bss")//.bss段不修改偏移
-off+=
-size;
+        seg->
+                sh_addr = base + size;//修改每个文件的段虚拟，为了方便计算符号或者重定位的虚址，不需要保存合并后文件偏移
+        size += seg->
+                sh_size;//累加段大小
+    }
+    base +=
+            size;//累加基址
+    if (name != ".bss")//.bss段不修改偏移
+        off +=
+                size;
 
 }
 
@@ -126,12 +121,12 @@ Linker::Linker() {
     segNames.push_back(".bss");//.bss段有尾端对齐功能，不能删除
     for (int i = 0; i < segNames.size(); ++i)
         segLists[segNames[i]] = new
-    SegList();
+                SegList();
 }
 
 void Linker::addElf(const char *dir) {
     Elf_file *elf = new
-    Elf_file();
+            Elf_file();
     elf->readElf(dir);//读入目标文件，构造elf文件对象
     elfs.push_back(elf);//添加目标文件对象
 }
@@ -139,7 +134,7 @@ void Linker::addElf(const char *dir) {
 void Linker::collectInfo() {
     for (int i = 0; i < elfs.size(); ++i)//扫描输入文件
     {
-        Elf_file * elf = elfs[i];
+        Elf_file *elf = elfs[i];
         //记录段表信息
         for (int i = 0; i < segNames.size(); ++i)
             if (elf->shdrTab.find(segNames[i]) != elf->shdrTab.end())
@@ -151,7 +146,7 @@ void Linker::collectInfo() {
             //if(ELF32_ST_BIND(symIt->second->st_info)==STB_GLOBAL)//不是只考虑全局符号[但是按照汇编器设计，局部符号避免名字冲突]
             {
                 SymLink *symLink = new
-                SymLink();
+                        SymLink();
                 symLink->name = symIt->first;//记录名字
                 if (symIt->second->st_shndx == STN_UNDEF)//引用符号
                 {
@@ -287,7 +282,7 @@ void Linker::relocate() {
     if (showLink)
         printf("--------------重定位----------------\n");
     for (int i = 0; i < elfs.size(); ++i) {
-        vector < RelItem * > tab = elfs[i]->relTab;//得到重定位表
+        vector<RelItem *> tab = elfs[i]->relTab;//得到重定位表
         for (int j = 0; j < tab.size(); ++j)//遍历重定位项
         {
             Elf32_Sym *sym = elfs[i]->symTab[tab[j]->relName];//重定位符号信息
@@ -354,7 +349,7 @@ void Linker::assemExe() {
     exe.ehdr.e_phnum = segNames.size();
     //填充shstrtab数据
     char *str = exe.shstrtab = new
-    char[shstrtabSize];
+            char[shstrtabSize];
     exe.shstrtabSize = shstrtabSize;
     int index = 0;
     //段表串名与索引映射
@@ -409,7 +404,7 @@ void Linker::assemExe() {
     //printf(".strtab:\tbase=%08x\tsize=%08x\n",curOff,strtabSize);
     //填充strtab数据
     str = exe.strtab = new
-    char[strtabSize];
+            char[strtabSize];
     exe.strtabSize = strtabSize;
     index = 0;
     //串表与索引映射
@@ -478,18 +473,18 @@ bool Linker::link(const char *dir) {
 
 Linker::~Linker() {
     //清空合并段序列
-    for (hash_map<string, SegList * , string_hash>::iterator i = segLists.begin(); i != segLists.end(); ++i) {
+    for (hash_map<string, SegList *, string_hash>::iterator i = segLists.begin(); i != segLists.end(); ++i) {
         delete
-        i->second;
+                i->second;
     }
     segLists.clear();
     //清空符号引用序列
-    for (vector<SymLink * >::iterator i = symLinks.begin(); i != symLinks.end(); ++i) {
+    for (vector<SymLink *>::iterator i = symLinks.begin(); i != symLinks.end(); ++i) {
         delete *i;
     }
     symLinks.clear();
     //清空符号定义序列
-    for (vector<SymLink * >::iterator i = symDef.begin(); i != symDef.end(); ++i) {
+    for (vector<SymLink *>::iterator i = symDef.begin(); i != symDef.end(); ++i) {
         delete *i;
     }
     symDef.clear();

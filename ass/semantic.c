@@ -5,64 +5,64 @@
   ********************************************************************************************************************************/
 int lb_record::curAddr = 0x00000000;//对于重定位文件是0，链接后开始于0x08048100
 lb_record::lb_record(string
-                     n,
-                     bool ex
+n,
+bool ex
 )//L:或者(ex=true:L dd @e_esp)
 {
-    lbName = n;
-    addr = lb_record::curAddr;
-    externed = ex;
-    isEqu = false;
-    segName = curSeg;
-    times = 0;
-    len = 0;
-    cont = NULL;
-    cont_len = 0;
-    if (ex) {
-        addr = 0;
-        segName = "";
-    }
+lbName = n;
+addr = lb_record::curAddr;
+externed = ex;
+isEqu = false;
+segName = curSeg;
+times = 0;
+len = 0;
+cont = NULL;
+cont_len = 0;
+if (ex) {
+addr = 0;
+segName = "";
+}
 }
 
 lb_record::lb_record(string
-                     n,
-                     int a
+n,
+int a
 )//L equ 1
 {
-    lbName = n;
-    segName = curSeg;
-    addr = a;
-    isEqu = true;
-    externed = false;
-    times = 0;
-    len = 0;
-    cont = NULL;
-    cont_len = 0;
+lbName = n;
+segName = curSeg;
+addr = a;
+isEqu = true;
+externed = false;
+times = 0;
+len = 0;
+cont = NULL;
+cont_len = 0;
 }
 
 lb_record::lb_record(string
-                     n,
-                     int t,
-                     int l,
-                     int c[],
-                     int c_l
+n,
+int t,
+int l,
+int c[],
+int c_l
 )//L times 10 dw 10,"1234"
 {
-    lbName = n;
-    addr = lb_record::curAddr;
-    segName = curSeg;
-    isEqu = false;
-    times = t;
-    len = l;
-    cont_len = c_l;
-    cont = new
-            int[c_l];
-    for (
-            int i = 0;
-            i < c_l;
-            i++) {
-        cont[i] = c[i];
-    }
+lbName = n;
+addr = lb_record::curAddr;
+segName = curSeg;
+isEqu = false;
+times = t;
+len = l;
+cont_len = c_l;
+cont = new
+int[c_l];
+for (
+int i = 0;
+i<c_l;
+i++) {
+cont[i] = c[i];
+}
 /*
 ——编译器没有输出extern，因此这里必然是有效数据
 externed=(cont[0]==1);//L dd 1说明L是外部的符号
@@ -76,11 +76,11 @@ else
   segName="";//不属于任何段
 }
 */
-    externed = false;
-    lb_record::curAddr +=
-            t * l
-            *
-            c_l;//修改地址
+externed = false;
+lb_record::curAddr +=
+t *l
+*
+c_l;//修改地址
 /*cout<<lbName<<":"<<t*l*c_l<<endl;
 for(int i=0;i<c_l;i++)
     printf("%x ",c[i]);
@@ -98,7 +98,7 @@ void lb_record::write() {
 lb_record::~lb_record() {
     if (cont != NULL)
         delete[]
-                cont;
+    cont;
 }
 
 int Table::hasName(string name) {
@@ -137,7 +137,7 @@ lb_record *Table::getlb(string name) {
         ret = lb_map[name];
     else {
         lb_record *p_lb = lb_map[name] = new
-                lb_record(name, true);//未知符号，添加到符号表（仅仅添加了一次，第一次扫描添加的）
+        lb_record(name, true);//未知符号，添加到符号表（仅仅添加了一次，第一次扫描添加的）
         ret = p_lb;
     }
 
@@ -157,7 +157,7 @@ void Table::switchSeg() {
 }
 
 void Table::exportSyms() {
-    hash_map<string, lb_record *, string_hash>::iterator lb_i, lb_iend;
+    hash_map<string, lb_record * , string_hash>::iterator lb_i, lb_iend;
     lb_iend = lb_map.end();
     for (lb_i = lb_map.begin(); lb_i != lb_iend; lb_i++) {
         lb_record *lr = lb_i->second;
@@ -186,11 +186,11 @@ void Table::write() {
 
 Table::~Table()//注销所有空间
 {
-    hash_map<string, lb_record *, string_hash>::iterator lb_i, lb_iend;
+    hash_map<string, lb_record * , string_hash>::iterator lb_i, lb_iend;
     lb_iend = lb_map.end();
     for (lb_i = lb_map.begin(); lb_i != lb_iend; lb_i++) {
         delete
-                lb_i->second;//删除记录对象
+        lb_i->second;//删除记录对象
     }
     lb_map.clear();
 }

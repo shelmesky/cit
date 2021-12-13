@@ -19,18 +19,18 @@ void values(string lbName, int times, int len);
 void type(int cont[], int
 
 &cont_len,
-          int len
+int len
 );
 
 void valtail(int cont[], int
 
 &cont_len,
-             int len
+int len
 );
 
 void opr(int
 
-         &regNum, int &type, int &len);
+&regNum, int &type, int &len);
 
 int reg();
 
@@ -153,13 +153,13 @@ void lbtail(string lbName) {
             match(number);
             {
                 lb_record *lr = new
-                        lb_record(lbName, num);
+                lb_record(lbName, num);
                 table.addlb(lr);
             }
             break;
         case colon: {
             lb_record *lr = new
-                    lb_record(lbName, false);
+            lb_record(lbName, false);
             table.addlb(lr);
         }
             break;
@@ -198,77 +198,77 @@ void values(string lbName, int times, int len) {
     type(cont, cont_len, len);
     valtail(cont, cont_len, len);
     lb_record *lr = new
-            lb_record(lbName, times, len, cont, cont_len);
+    lb_record(lbName, times, len, cont, cont_len);
     table.addlb(lr);
 }
 
 void type(int cont[], int
 
 &cont_len,
-          int len
+int len
 ) {
 //查看lbName是否存在，否则添加到符号表，若存在忽略times和len字段
-    nextToken();
+nextToken();
 
-    switch (token) {
-        case number:
-            cont[cont_len] =
-                    num;
-            cont_len++;
-            break;
-        case strings:
-            for (
-                    int i = 0;; i++) {
-                if (str[i] != 0) {
-                    cont[cont_len] = (unsigned char) str[i];
-                    cont_len++;
-                } else
-                    break;
-            }
-            break;
-        case ident: {
-            string name = "";
-            name +=
-                    id;
-            lb_record *lr = table.getlb(name);
-            cont[cont_len] = lr->
-                    addr;//把地址作为占位，第二次扫描还会刷新，为该位置生成重定位项(equ除外)
+switch (token) {
+case number:
+cont[cont_len] =
+num;
+cont_len++;
+break;
+case strings:
+for (
+int i = 0;; i++) {
+if (str[i] != 0) {
+cont[cont_len] = (unsigned char) str[i];
+cont_len++;
+} else
+break;
+}
+break;
+case ident: {
+string name = "";
+name +=
+id;
+lb_record *lr = table.getlb(name);
+cont[cont_len] = lr->
+addr;//把地址作为占位，第二次扫描还会刷新，为该位置生成重定位项(equ除外)
 //处理数据段重定位项
-            if (scanLop == 2)//第二次扫描记录重定位项
-            {
-                if (!lr->isEqu)//不是equ
-                    obj.
-                            addRel(curSeg, lb_record::curAddr
-                                           +
-                                           cont_len * len, name,
-                                   R_386_32);//数据段重定位位置很好确定，直接添加重定位项即可
-            }
-            cont_len++;
-        }
-            break;
-        default:
-            printf("type err![line:%d]\n", lineNum);
-    }
+if (scanLop == 2)//第二次扫描记录重定位项
+{
+if (!lr->isEqu)//不是equ
+obj.
+addRel(curSeg, lb_record::curAddr
++
+cont_len *len, name,
+R_386_32);//数据段重定位位置很好确定，直接添加重定位项即可
+}
+cont_len++;
+}
+break;
+default:
+printf("type err![line:%d]\n", lineNum);
+}
 }
 
 void valtail(int cont[], int
 
 &cont_len,
-             int len
+int len
 ) {
-    nextToken();
+nextToken();
 
-    switch (token) {
-        case comma:
-            type(cont, cont_len, len
-            );
-            valtail(cont, cont_len, len
-            );
-            break;
-        default:
-            BACK
-            return;
-    }
+switch (token) {
+case comma:
+type(cont, cont_len, len
+);
+valtail(cont, cont_len, len
+);
+break;
+default:
+BACK
+return;
+}
 }
 
 ModRM modrm;
@@ -303,67 +303,67 @@ void inst() {
 lb_record *relLb = NULL;//记录指令中可能需要重定位的标签（使用了符号）
 void opr(int
 
-         &regNum, int &type, int &len) {
-    string name = "";
-    lb_record *lr;
+&regNum, int &type, int &len) {
+string name = "";
+lb_record *lr;
 
-    nextToken();
+nextToken();
 
-    switch (token) {
-        case number://立即数
-            type = immd;
-            instr.
-                    imm32 = num;
-            break;
-        case ident://立即数
-            type = immd;
-            name +=
-                    id;
-            lr = table.getlb(name);
-            instr.
-                    imm32 = lr->addr;
+switch (token) {
+case number://立即数
+type = immd;
+instr.
+imm32 = num;
+break;
+case ident://立即数
+type = immd;
+name +=
+id;
+lr = table.getlb(name);
+instr.
+imm32 = lr->addr;
 //处理数据段重定位项
-            if (scanLop == 2)//第二次扫描记录重定位项
-            {
-                if (!lr->isEqu)//不是equ
-                {
+if (scanLop == 2)//第二次扫描记录重定位项
+{
+if (!lr->isEqu)//不是equ
+{
 //记录符号
-                    relLb = lr;
-                }
-            }
-            break;
-        case lbrac://内存寻址
-            type = memr;
-            BACK
+relLb = lr;
+}
+}
+break;
+case lbrac://内存寻址
+type = memr;
+BACK
 
-            mem();
+mem();
 
-            break;
-        case subs://负立即数
-            type = immd;
-            match(number);
-            instr.
-                    imm32 = -num;
-            break;
-        default://寄存器操作数 11 rm=des reg=src
-            type = regs;
-            BACK
-            len = reg();
-            if (regNum != 0)//双reg，将原来reg写入rm作为目的操作数，本次写入reg
-            {
-                modrm.
-                        mod = 3;//双寄存器模式
-                modrm.
-                        rm = modrm.reg;//因为统一采用opcode rm,r 的指令格式，比如mov rm32,r32就使用0x89,若是使用opcode r,rm 形式则不需要
-                modrm.
-                        reg = token - br_al - (1 - len % 4) * 8;//计算寄存器的编码
-            } else//第一次出现reg，临时在reg中，若双reg这次是目的寄存器，需要交换位置
-            {
-                modrm.
-                        reg = token - br_al - (1 - len % 4) * 8;//计算寄存器的编码
-            }
-            regNum++;
-    }
+break;
+case subs://负立即数
+type = immd;
+match(number);
+instr.
+imm32 = -num;
+break;
+default://寄存器操作数 11 rm=des reg=src
+type = regs;
+BACK
+len = reg();
+if (regNum != 0)//双reg，将原来reg写入rm作为目的操作数，本次写入reg
+{
+modrm.
+mod = 3;//双寄存器模式
+modrm.
+rm = modrm.reg;//因为统一采用opcode rm,r 的指令格式，比如mov rm32,r32就使用0x89,若是使用opcode r,rm 形式则不需要
+modrm.
+reg = token - br_al - (1 - len % 4) * 8;//计算寄存器的编码
+} else//第一次出现reg，临时在reg中，若双reg这次是目的寄存器，需要交换位置
+{
+modrm.
+reg = token - br_al - (1 - len % 4) * 8;//计算寄存器的编码
+}
+regNum++;
+}
 }
 
 int reg() {
